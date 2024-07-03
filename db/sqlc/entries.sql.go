@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createEntry = `-- name: CreateEntry :one
@@ -21,12 +19,12 @@ INSERT INTO entries (
 `
 
 type CreateEntryParams struct {
-	AccountID pgtype.Int8 `json:"account_id"`
-	Amount    int64       `json:"amount"`
+	AccountID int64 `json:"account_id"`
+	Amount    int64 `json:"amount"`
 }
 
 func (q *Queries) CreateEntry(ctx context.Context, arg CreateEntryParams) (Entry, error) {
-	row := q.db.QueryRow(ctx, createEntry, arg.AccountID, arg.Amount)
+	row := q.db.QueryRowContext(ctx, createEntry, arg.AccountID, arg.Amount)
 	var i Entry
 	err := row.Scan(
 		&i.ID,
@@ -43,7 +41,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteEntry(ctx context.Context, id int64) error {
-	_, err := q.db.Exec(ctx, deleteEntry, id)
+	_, err := q.db.ExecContext(ctx, deleteEntry, id)
 	return err
 }
 
@@ -53,7 +51,7 @@ WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetEntry(ctx context.Context, id int64) (Entry, error) {
-	row := q.db.QueryRow(ctx, getEntry, id)
+	row := q.db.QueryRowContext(ctx, getEntry, id)
 	var i Entry
 	err := row.Scan(
 		&i.ID,
@@ -77,7 +75,7 @@ type ListentriesParams struct {
 }
 
 func (q *Queries) Listentries(ctx context.Context, arg ListentriesParams) ([]Entry, error) {
-	rows, err := q.db.Query(ctx, listentries, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, listentries, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -94,6 +92,9 @@ func (q *Queries) Listentries(ctx context.Context, arg ListentriesParams) ([]Ent
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -114,7 +115,7 @@ type UpdateEntryParams struct {
 }
 
 func (q *Queries) UpdateEntry(ctx context.Context, arg UpdateEntryParams) (Entry, error) {
-	row := q.db.QueryRow(ctx, updateEntry, arg.ID, arg.Amount)
+	row := q.db.QueryRowContext(ctx, updateEntry, arg.ID, arg.Amount)
 	var i Entry
 	err := row.Scan(
 		&i.ID,
