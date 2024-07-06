@@ -23,7 +23,7 @@ func createRandomEntry(t *testing.T) Entry {
 	require.Equal(t, arg.Amount, entry.Amount)
 
 	require.NotZero(t, entry.ID)
-	require.NotZero(t, entry.Createdat)
+	require.NotZero(t, entry.CreatedAt)
 
 	return entry
 }
@@ -42,7 +42,7 @@ func TestGetEntry(t *testing.T) {
 	require.Equal(t, entry1.ID, entry2.ID)
 	require.Equal(t, entry1.AccountID, entry2.AccountID)
 	require.Equal(t, entry1.Amount, entry2.Amount)
-	require.Equal(t, entry1.Createdat, entry2.Createdat)
+	require.Equal(t, entry1.CreatedAt, entry2.CreatedAt)
 }
 
 func TestUpdateEntry(t *testing.T) {
@@ -68,7 +68,7 @@ func TestDeleteEntry(t *testing.T) {
 	err := testQueries.DeleteEntry(context.Background(), entry1.ID)
 	require.NoError(t, err)
 
-	entry2, err := testQueries.GetAccount(context.Background(), entry1.ID)
+	entry2, err := testQueries.GetAccountForUpdate(context.Background(), entry1.ID)
 	require.Error(t, err)
 	require.EqualError(t, err, sql.ErrNoRows.Error())
 	require.Empty(t, entry2)
