@@ -10,7 +10,7 @@ INSERT INTO entries (
 SELECT * FROM entries
 WHERE id = $1 LIMIT 1;
 
--- name: Listentries :many
+-- name: ListEntries :many
 SELECT * FROM entries
 ORDER BY id
 LIMIT $1
