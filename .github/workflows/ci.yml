@@ -33,11 +33,19 @@ jobs:
         with:
           go-version: "1.22"
 
+      - name: Debug environment
+        run: |
+          set -euxo pipefail
+          curl --version
+          tar --version
+          sudo --version
+
       - name: Install golang-migrate
         run: |
+          set -euxo pipefail
           curl -L https://github.com/golang-migrate/migrate/releases/download/v4.17.1/migrate.linux-amd64.tar.gz | tar xvz
-          sudo mv migrate /usr/bin/migrate
-          which engine
+          sudo mv migrate /usr/bin
+          which migrate
 
       - name: Run migrations
         run: make migrateup
